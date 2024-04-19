@@ -13,7 +13,7 @@ public static class LlamaAPI
     //Non streaming
     //public static LlamaPromptResponse GetPromptResponse(string model, string prompt, int maxTokens, bool stream)
     
-    public static void GetPromptResponse(string model, string prompt, int maxTokens, bool stream)
+    public static void GetPromptResponse(string model, string prompt, int maxTokens, bool stream, Action<LlamaPromptResponse> callback)
     {
         //Constructing JSON payload
         ApiJsonPayload requestPayload = new ApiJsonPayload
@@ -57,7 +57,7 @@ public static class LlamaAPI
                 string line;
                 while ((line = reader.ReadLine()) != null)
                 {
-                    
+                    //to ignore the empty JSONS
                     if (line.Length == 0)
                     {
                         continue;
@@ -70,9 +70,12 @@ public static class LlamaAPI
 
                     //Deserialize JSON to LlamaPromptResponse object type
                     LlamaPromptResponse completionResponse = JsonUtility.FromJson<LlamaPromptResponse>(line.Substring("data:".Length));
-                    Debug.Log(completionResponse.choices[0].text);
-                    //Debug.Log(line);    
-           
+                    //Debug.Log(completionResponse.choices[0].text);
+                    
+                    //string responseText = completionResponse.choices[0].text;
+                    //callback?.Invoke(responseText);
+                    callback.Invoke(completionResponse);
+
                 }
 
             }
