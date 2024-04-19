@@ -16,10 +16,17 @@ public class UIDemo : MonoBehaviour
 
         string model = "TheBloke/Mistral-7B-Instruct-v0.1-GGUF/mistral-7b-instruct-v0.1.Q3_K_L.gguf";
         string prompt = promptUser.text;
-        int maxTokens = -1; 
+        int maxTokens = -1;
+        bool stream = true;
 
-        LlamaPromptResponse promptOutput = LlamaAPI.GetPromptResponse(model, prompt, maxTokens);
-        output.text = promptOutput.choices[0].text;
+        //Non streaming
+        //LlamaPromptResponse promptOutput = LlamaAPI.GetPromptResponse(model, prompt, maxTokens, stream);
+        //output.text = promptOutput.choices[0].text;
+
+        //Streaming
+        LlamaAPI.GetPromptResponse(model, prompt, maxTokens, stream);
+
+        
         //output.text = promptUser.text;
     }
 
