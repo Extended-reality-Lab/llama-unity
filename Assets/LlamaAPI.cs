@@ -10,8 +10,6 @@ using Unity.VisualScripting;
 
 public static class LlamaAPI
 {
-    //Non streaming
-    //public static LlamaPromptResponse GetPromptResponse(string model, string prompt, int maxTokens, bool stream)
     
     public static void GetPromptResponse(string model, string prompt, int maxTokens, bool stream, Action<LlamaPromptResponse> callback)
     {
@@ -24,11 +22,12 @@ public static class LlamaAPI
             stream  = stream
         };
 
-        // Serialize the payload to JSON
+        //Serialize the payload to JSON
         string jsonPayload = JsonUtility.ToJson(requestPayload);
 
         //Creat HTTP POST request 
         HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://localhost:1234/v1/completions");
+       
         request.Method = "POST";
         request.ContentType = "application/json";
 
@@ -38,15 +37,6 @@ public static class LlamaAPI
             writer.Write(jsonPayload);
         }
 
-        //Non streaming
-
-        ////send request and get response
-        //HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-        ////read JSON response body
-        //StreamReader reader = new StreamReader(response.GetResponseStream());
-        //string json = reader.ReadToEnd();
-        ////Deserialize JSON to LlamaPromptResponse object type
-        //return JsonUtility.FromJson<LlamaPromptResponse>(json);
 
 
         using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
@@ -72,8 +62,6 @@ public static class LlamaAPI
                     LlamaPromptResponse completionResponse = JsonUtility.FromJson<LlamaPromptResponse>(line.Substring("data:".Length));
                     //Debug.Log(completionResponse.choices[0].text);
                     
-                    //string responseText = completionResponse.choices[0].text;
-                    //callback?.Invoke(responseText);
                     callback.Invoke(completionResponse);
 
                 }
@@ -82,5 +70,44 @@ public static class LlamaAPI
         }
 
     }
-   
+
+
+    public static LlamaPromptResponse GetPromptResponseNonStreaming(string model, string prompt, int maxTokens, bool stream)
+    {
+        //Constructing JSON payload
+        ApiJsonPayload requestPayload = new ApiJsonPayload
+        {
+            model = model,
+            prompt = prompt,
+            max_tokens = maxTokens,
+            stream = stream
+        };
+
+        //Serialize the payload to JSON
+        string jsonPayload = JsonUtility.ToJson(requestPayload);
+
+        //Creat HTTP POST request 
+        HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://localhost:1234/v1/completions");
+
+        request.Method = "POST";
+        request.ContentType = "application/json";
+
+        // Write the JSON payload to the request body
+        using (StreamWriter writer = new StreamWriter(request.GetRequestStream()))
+        {
+            writer.Write(jsonPayload);
+        }
+
+        //Non streaming
+        //send request and get response
+        HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+        //read JSON response body
+        StreamReader reader = new StreamReader(response.GetResponseStream());
+        string json = reader.ReadToEnd();
+        //Deserialize JSON to LlamaPromptResponse object type
+        return JsonUtility.FromJson<LlamaPromptResponse>(json);
+
+    }
+
+
 }
