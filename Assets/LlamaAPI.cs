@@ -7,6 +7,7 @@ using System.Net.Http;
 using System;
 using static LlamaPromptResponse;
 using Unity.VisualScripting;
+using UnityEditor.VersionControl;
 
 public static class LlamaAPI
 {
@@ -91,6 +92,7 @@ public static class LlamaAPI
 
         request.Method = "POST";
         request.ContentType = "application/json";
+       
 
         // Write the JSON payload to the request body
         using (StreamWriter writer = new StreamWriter(request.GetRequestStream()))
@@ -108,6 +110,48 @@ public static class LlamaAPI
         return JsonUtility.FromJson<LlamaPromptResponse>(json);
 
     }
+
+    public static AnythingLLMPromptResponse GetAnythingLLMNonStreaming(string message, string mode)
+    {
+        //Constructing JSON payload
+        AnythingLLMJSONPayload requestPayload = new AnythingLLMJSONPayload
+        {
+            message = message,
+            mode = mode
+        };
+
+        string apikey  = "DYWMF1W - 4BA4KJR - G3RQEHM - 00G0KHF";
+        //Serialize the payload to JSON
+        string jsonPayload = JsonUtility.ToJson(requestPayload);
+
+        //Creat HTTP POST request 
+        HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://localhost:3001/api/v1/workspace/llamaragtest/chat");
+
+        request.Method = "POST";
+        request.ContentType = "application/json";
+        request.Headers["Authorization"] = "Bearer " + apikey;
+        request.UseDefaultCredentials = true;
+
+        // Write the JSON payload to the request body
+        using (StreamWriter writer = new StreamWriter(request.GetRequestStream()))
+        {
+            writer.Write(jsonPayload);
+        }
+
+        //Non streaming
+        //send request and get response
+        HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+        //read JSON response body
+        StreamReader reader = new StreamReader(response.GetResponseStream());
+        string json = reader.ReadToEnd();
+        //Deserialize JSON to LlamaPromptResponse object type
+        return JsonUtility.FromJson<AnythingLLMPromptResponse>(json);
+
+    }
+
+
+
+
 
 
 }

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -20,15 +21,17 @@ public class UIDemo : MonoBehaviour
     {
 
         output.text = "";
+
         //GenerateNonStreamingResponse();
 
-        StartCoroutine(GenerateStreamingResponse());
+        //StartCoroutine(GenerateStreamingResponse());
 
+        //AnythingLLMNonStreaming();
     }
 
     private void GenerateNonStreamingResponse()
     {
-        //Non streaming
+        //Non streaming - Plain LM Studio without RAG
 
         string model = "TheBloke/Mistral-7B-Instruct-v0.1-GGUF/mistral-7b-instruct-v0.1.Q3_K_L.gguf";
         string prompt = promptUser.text;
@@ -41,6 +44,7 @@ public class UIDemo : MonoBehaviour
 
     IEnumerator GenerateStreamingResponse()
     {
+        //Streaming - Plain LM Studio without RAG
 
         string model = "TheBloke/Mistral-7B-Instruct-v0.1-GGUF/mistral-7b-instruct-v0.1.Q3_K_L.gguf";
         string prompt = promptUser.text;
@@ -57,5 +61,19 @@ public class UIDemo : MonoBehaviour
         });
         yield return null;
     }
+
+    private void AnythingLLMNonStreaming()
+    {
+        //Streaming - LM Studio + AnythingLLM ie with RAG
+
+        string message = promptUser.text;
+        string mode = "query";
+        AnythingLLMPromptResponse promptOutput = LlamaAPI.GetAnythingLLMNonStreaming(message, mode);
+
+        output.text = promptOutput.textResponse;
+
+    }
+
+
 
 }
